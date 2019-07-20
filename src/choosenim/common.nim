@@ -13,10 +13,3 @@ const
       "nimpretty",
       "nimsuggest"
     ]
-
-  mingwProxies* = [
-    "gcc",
-    "g++",
-    "gdb",
-    "ld"
-  ]

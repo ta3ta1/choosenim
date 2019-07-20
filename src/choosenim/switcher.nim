@@ -147,15 +147,6 @@ proc switchToPath(filepath: string, params: CliParams): bool =
             Warning, HighPriority)
 
   var proxiesToInstall = @proxies
-  # Handle MingW proxies.
-  when defined(windows):
-    if not isDefaultCCInPath(params):
-      let mingwBin = getMingwBin(params)
-      if not fileExists(mingwBin / "gcc".addFileExt(ExeExt)):
-        let msg = "No 'gcc' binary found in '$1'." % mingwBin
-        raise newException(ChooseNimError, msg)
-
-      proxiesToInstall.add(mingwProxies)
 
   # Return early if this version is already selected.
   let selectedPath = params.getSelectedPath()

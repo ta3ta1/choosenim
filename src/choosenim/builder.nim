@@ -73,6 +73,22 @@ proc buildTools() =
     else:
       doCmdRaw("./koch tools -d:release")
 
+proc replaceGccPathForWindows(mingwDir: string) =
+  let cfg = getCurrentDir() / "config" / "nim.cfg"
+  if not fileExists(cfg):
+    return
+
+  var buffer = ""
+  for line in cfg.lines:
+    if line.contains("#gcc.path"):
+      let newLine = line
+        .replace("#gcc.path", "gcc.path")
+        .replace(r"$nim\dist\mingw\bin", mingwDir)
+      buffer.add(newLine & '\x0D' & '\x0A')
+    else:
+      buffer.add(line & '\x0D' & '\x0A')
+  writeFile(cfg, buffer)
+
 proc build*(extractDir: string, version: Version, params: CliParams) =
   # Report telemetry.
   report(initEvent(BuildEvent), params)
@@ -85,6 +101,8 @@ proc build*(extractDir: string, version: Version, params: CliParams) =
   when defined(windows):
     if not isDefaultCCInPath(params) and dirExists(params.getMingwBin()):
       putEnv("PATH", params.getMingwBin() & PathSep & pathEnv)
+      # modify config\nim.cfg
+      replaceGccPathForWindows(params.getMingwBin())
   defer:
     setCurrentDir(currentDir)
     putEnv("PATH", pathEnv)
